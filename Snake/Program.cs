@@ -6,36 +6,8 @@ using System.ComponentModel;
 
 namespace Snake
 {
-    enum Direction
-    {
-        Up,
-        Right,
-        Down,
-        Left
-    }
-
-    enum PointType
-    {
-        Border,
-        Air,
-        Snake,
-        Food
-    }
-
-    class Point
-    {
-        public PointType Type { get; set; }
-    }
-
-    class BodyPoint
-    {
-        public int X { get; set; }
-        public int Y { get; set; }
-    }
-
     class Program
     {
-
         static int updateInterval;
         static int score = 0;
         static int boardHeight;
