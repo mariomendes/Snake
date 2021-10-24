@@ -14,6 +14,7 @@ namespace Snake
         static int boardLength;
         static bool play = true;
         static bool playAgain = true;
+        static bool snake2 = true;
         static Point[,] board;
         static Direction currentDirection = Direction.Right;
         static List<BodyPoint> bodyPoints = new List<BodyPoint>();
@@ -39,7 +40,7 @@ namespace Snake
         {
             boardHeight = Console.WindowHeight - 2;
             boardLength = Console.WindowWidth - 1;
-            
+
             board = new Point[boardHeight, boardLength];
             currentDirection = Direction.Right;
             playAgain = false;
@@ -193,7 +194,21 @@ namespace Snake
                     }
                     else
                     {
-                        bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X + 1, Y = bodyPoints[0].Y });
+                        if (snake2)
+                        {
+                            if(board[bodyPoints[0].Y, bodyPoints[0].X + 1]?.Type == PointType.Border)
+                            {
+                                bodyPoints.Insert(0, new BodyPoint() { X = 1, Y = bodyPoints[0].Y });
+                            }
+                            else
+                            {
+                                bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X + 1, Y = bodyPoints[0].Y });
+                            }
+                        }
+                        else
+                        {
+                            bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X + 1, Y = bodyPoints[0].Y });
+                        }
                         board[bodyPoints[bodyPoints.Count - 1].Y, bodyPoints[bodyPoints.Count - 1].X].Type = PointType.Air;
                         bodyPoints.RemoveAt(bodyPoints.Count - 1);
                     }
@@ -214,7 +229,21 @@ namespace Snake
                     }
                     else
                     {
-                        bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X, Y = bodyPoints[0].Y - 1 });
+                        if(snake2)
+                        {
+                            if (board[bodyPoints[0].Y - 1, bodyPoints[0].X]?.Type == PointType.Border)
+                            {
+                                bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X, Y = boardHeight - 2 });
+                            }
+                            else
+                            {
+                                bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X, Y = bodyPoints[0].Y - 1 });
+                            }
+                        }
+                        else
+                        {
+                            bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X, Y = bodyPoints[0].Y - 1 });
+                        }
                         board[bodyPoints[bodyPoints.Count - 1].Y, bodyPoints[bodyPoints.Count - 1].X].Type = PointType.Air;
                         bodyPoints.RemoveAt(bodyPoints.Count - 1);
                     }
@@ -234,7 +263,21 @@ namespace Snake
                     }
                     else
                     {
-                        bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X, Y = bodyPoints[0].Y + 1 });
+                        if (snake2)
+                        {
+                            if (board[bodyPoints[0].Y + 1, bodyPoints[0].X]?.Type == PointType.Border)
+                            {
+                                bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X, Y = 1 });
+                            }
+                            else
+                            {
+                                bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X, Y = bodyPoints[0].Y + 1 });
+                            }
+                        }
+                        else
+                        {
+                            bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X, Y = bodyPoints[0].Y + 1 });
+                        }
                         board[bodyPoints[bodyPoints.Count - 1].Y, bodyPoints[bodyPoints.Count - 1].X].Type = PointType.Air;
                         bodyPoints.RemoveAt(bodyPoints.Count - 1);
                     }
@@ -256,9 +299,25 @@ namespace Snake
                     }
                     else
                     {
-                        bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X - 1, Y = bodyPoints[0].Y });
-                        board[bodyPoints[bodyPoints.Count - 1].Y, bodyPoints[bodyPoints.Count - 1].X].Type = PointType.Air;
-                        bodyPoints.RemoveAt(bodyPoints.Count - 1);
+                        if(snake2)
+                        {
+                            if (board[bodyPoints[0].Y, bodyPoints[0].X - 1]?.Type == PointType.Border)
+                            {
+                                bodyPoints.Insert(0, new BodyPoint() { X = boardLength - 2, Y = bodyPoints[0].Y });
+                            }
+                            else
+                            {
+                                bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X - 1, Y = bodyPoints[0].Y });
+                            }
+                            board[bodyPoints[bodyPoints.Count - 1].Y, bodyPoints[bodyPoints.Count - 1].X].Type = PointType.Air;
+                            bodyPoints.RemoveAt(bodyPoints.Count - 1);
+                        }
+                        else
+                        {
+                            bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X - 1, Y = bodyPoints[0].Y });
+                            board[bodyPoints[bodyPoints.Count - 1].Y, bodyPoints[bodyPoints.Count - 1].X].Type = PointType.Air;
+                            bodyPoints.RemoveAt(bodyPoints.Count - 1);
+                        }
                     }
 
                     break;
@@ -272,9 +331,19 @@ namespace Snake
 
         static bool CollisionCheck(int x, int y)
         {
-            if (board[bodyPoints[0].Y + y, bodyPoints[0].X + x]?.Type == PointType.Border | board[bodyPoints[0].Y + y, bodyPoints[0].X + x]?.Type == PointType.Snake)
+            if (!snake2)
             {
-                return true;
+                if (board[bodyPoints[0].Y + y, bodyPoints[0].X + x]?.Type == PointType.Border | board[bodyPoints[0].Y + y, bodyPoints[0].X + x]?.Type == PointType.Snake)
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (board[bodyPoints[0].Y + y, bodyPoints[0].X + x]?.Type == PointType.Snake)
+                {
+                    return true;
+                }
             }
             return false;
         }
