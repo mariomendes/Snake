@@ -13,17 +13,17 @@ namespace Snake
         static int boardHeight;
         static int boardLength;
         static bool play = true;
-        static bool playAgain = true;
+        static bool playAgain = false;
+        static bool snake2 = true;
         static Point[,] board;
         static Direction currentDirection = Direction.Right;
         static List<BodyPoint> bodyPoints = new List<BodyPoint>();
-        static BackgroundWorker bw = new BackgroundWorker();
 
         static void Main(string[] args)
         {
-            bw.DoWork += Bw_DoWork;
-            bw.RunWorkerAsync();
-            while (playAgain)
+            Console.SetWindowSize(40, 20);
+            Console.SetBufferSize(40, 20);
+            do
             {
                 NewGame();
                 while (play)
@@ -32,14 +32,14 @@ namespace Snake
                     Thread.Sleep(updateInterval);
                 }
                 PlayAgain();
-            }
+            } while (playAgain);
         }
 
         static void NewGame()
         {
             boardHeight = Console.WindowHeight - 2;
             boardLength = Console.WindowWidth - 1;
-            
+
             board = new Point[boardHeight, boardLength];
             currentDirection = Direction.Right;
             playAgain = false;
@@ -48,17 +48,7 @@ namespace Snake
             updateInterval = 60;
 
             SetupBoard();
-        }
-
-        private static void Bw_DoWork(object sender, DoWorkEventArgs e)
-        {
-            while (true)
-            {
-                if (Console.KeyAvailable)
-                {
-                    SetDirection(Console.ReadKey(true).KeyChar);
-                }
-            }
+            GenerateFood();
         }
 
         static void SetupBoard()
@@ -67,25 +57,25 @@ namespace Snake
             //top border
             for (int i = 0; i <= boardHeight - 1; i++)
             {
-                board[i, 0] = new Point { Type = 0 };
+                board[i, 0] = new Point { Type = PointType.Border };
             }
 
             //left boarder
             for (int i = 1; i <= boardLength - 1; i++)
             {
-                board[0, i] = new Point { Type = 0 };
+                board[0, i] = new Point { Type = PointType.Border };
             }
 
-            //right boarder
+            //right border
             for (int i = 1; i <= boardLength - 1; i++)
             {
-                board[boardHeight - 1, i] = new Point { Type = 0 };
+                board[boardHeight - 1, i] = new Point { Type = PointType.Border };
             }
 
             //bottom border
             for (int i = 0; i <= boardHeight - 1; i++)
             {
-                board[i, boardLength - 1] = new Point { Type = 0 };
+                board[i, boardLength - 1] = new Point { Type = PointType.Border };
             }
 
             //fill air blocks
@@ -116,6 +106,7 @@ namespace Snake
 
         static void Update()
         {
+            SetDirection();
             Draw();
             GenerateFood();
             Move();
@@ -151,130 +142,128 @@ namespace Snake
 
         static bool BoardHasFood()
         {
-            bool flag = false;
             for (int i = 0; i < boardHeight; i++)
             {
                 for (int j = 0; j < boardLength; j++)
                 {
                     if (board[i, j]?.Type == PointType.Food)
                     {
-                        flag = true;
-                        continue;
+                        return true;
                     }
                 }
             }
-            return flag;
+            return false;
         }
 
         static bool IsFoodCollected(int x, int y)
         {
-            if (board[bodyPoints[0].Y + y, bodyPoints[0].X + x]?.Type == PointType.Food | board[bodyPoints[0].Y + y, bodyPoints[0].X + x]?.Type == PointType.Food)
+            BodyPoint headPoint = GetHeadPoint();
+            if (board[headPoint.Y + y, headPoint.X + x]?.Type == PointType.Food | board[headPoint.Y + y, headPoint.X + x]?.Type == PointType.Food)
             {
                 return true;
             }
             return false;
         }
 
+        static BodyPoint GetHeadPoint()
+        {
+            return bodyPoints[0];
+        }
+
         static void Move()
         {
+            BodyPoint headPoint = GetHeadPoint();
+            int x = 0;
+            int y = 0;
+            int passX = 0; //if snake 2 and goes through the wall where should the snakes headX position be
+            int passY = 0; //same for Y
+
             switch (currentDirection)
             {
                 case Direction.Right:
-                    if (CollisionCheck(1, 0))
-                    {
-                        play = false;
-                        break;
-                    }
-
-                    if (IsFoodCollected(1, 0))
-                    {
-                        bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X + 1, Y = bodyPoints[0].Y });
-                        score++;
-                    }
-                    else
-                    {
-                        bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X + 1, Y = bodyPoints[0].Y });
-                        board[bodyPoints[bodyPoints.Count - 1].Y, bodyPoints[bodyPoints.Count - 1].X].Type = PointType.Air;
-                        bodyPoints.RemoveAt(bodyPoints.Count - 1);
-                    }
-
-                    break;
-
-                case Direction.Up:
-                    if (CollisionCheck(0, -1))
-                    {
-                        play = false;
-                        break;
-                    }
-
-                    if (IsFoodCollected(0, -1))
-                    {
-                        bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X, Y = bodyPoints[0].Y - 1 });
-                        score++;
-                    }
-                    else
-                    {
-                        bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X, Y = bodyPoints[0].Y - 1 });
-                        board[bodyPoints[bodyPoints.Count - 1].Y, bodyPoints[bodyPoints.Count - 1].X].Type = PointType.Air;
-                        bodyPoints.RemoveAt(bodyPoints.Count - 1);
-                    }
-                    break;
-
-                case Direction.Down:
-                    if (CollisionCheck(0, 1))
-                    {
-                        play = false;
-                        break;
-                    }
-
-                    if (IsFoodCollected(0, 1))
-                    {
-                        bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X, Y = bodyPoints[0].Y + 1 });
-                        score++;
-                    }
-                    else
-                    {
-                        bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X, Y = bodyPoints[0].Y + 1 });
-                        board[bodyPoints[bodyPoints.Count - 1].Y, bodyPoints[bodyPoints.Count - 1].X].Type = PointType.Air;
-                        bodyPoints.RemoveAt(bodyPoints.Count - 1);
-                    }
-
+                    x = 1;
+                    y = 0;
+                    passX = 1;
                     break;
 
                 case Direction.Left:
-                    if (CollisionCheck(-1, 0))
-                    {
-                        play = false;
-                        break;
-                    }
+                    x = -1;
+                    y = 0;
+                    passX = boardLength - 2;
+                    break;
 
-                    if (IsFoodCollected(-1, 0))
+                case Direction.Up:
+                    x = 0;
+                    y = -1;
+                    passY = boardHeight - 2;
+                    break;
+
+                case Direction.Down:
+                    x = 0;
+                    y = 1;
+                    passY = 1;
+                    break;
+            }
+
+            if (CollisionCheck(x, y))
+            {
+                play = false;
+                return;
+            }
+
+            if (IsFoodCollected(x, y))
+            {
+                bodyPoints.Insert(0, new BodyPoint() { X = headPoint.X + x, Y = headPoint.Y + y });
+                score++;
+            }
+
+            else //no food was collected and no collision
+            {
+                //turn tail point to air point for draw
+                board[bodyPoints[bodyPoints.Count - 1].Y, bodyPoints[bodyPoints.Count - 1].X].Type = PointType.Air;
+                //remove tail point from snake bodyparts
+                bodyPoints.RemoveAt(bodyPoints.Count - 1);
+
+                if (snake2)
+                {
+                    if (board[headPoint.Y + y, headPoint.X + x]?.Type == PointType.Border)
                     {
-                        bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X - 1, Y = bodyPoints[0].Y });
-                        score++;
-                        break;
+                        bodyPoints.Insert(0, new BodyPoint() { X = passX == 0 ? headPoint.X : passX, Y = passY == 0 ? headPoint.Y : passY });
                     }
                     else
                     {
-                        bodyPoints.Insert(0, new BodyPoint() { X = bodyPoints[0].X - 1, Y = bodyPoints[0].Y });
-                        board[bodyPoints[bodyPoints.Count - 1].Y, bodyPoints[bodyPoints.Count - 1].X].Type = PointType.Air;
-                        bodyPoints.RemoveAt(bodyPoints.Count - 1);
+                        bodyPoints.Insert(0, new BodyPoint() { X = headPoint.X + x, Y = headPoint.Y + y });
                     }
-
-                    break;
+                }
+                else
+                {
+                    bodyPoints.Insert(0, new BodyPoint() { X = headPoint.X + 1, Y = headPoint.Y });
+                }
             }
+
             //add snake to the board with new coordinates
-            for (int i = 0; i < bodyPoints.Count; i++)
+            foreach (var bodyPoint in bodyPoints)
             {
-                board[bodyPoints[i].Y, bodyPoints[i].X] = new Point() { Type = PointType.Snake };
+                board[bodyPoint.Y, bodyPoint.X] = new Point() { Type = PointType.Snake };
             }
         }
 
         static bool CollisionCheck(int x, int y)
         {
-            if (board[bodyPoints[0].Y + y, bodyPoints[0].X + x]?.Type == PointType.Border | board[bodyPoints[0].Y + y, bodyPoints[0].X + x]?.Type == PointType.Snake)
+            BodyPoint headPoint = GetHeadPoint();
+            if (!snake2)
             {
-                return true;
+                if (board[headPoint.Y + y, headPoint.X + x]?.Type == PointType.Border | board[headPoint.Y + y, headPoint.X + x]?.Type == PointType.Snake)
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                if (board[headPoint.Y + y, headPoint.X + x]?.Type == PointType.Snake)
+                {
+                    return true;
+                }
             }
             return false;
         }
@@ -298,6 +287,34 @@ namespace Snake
                 case 'a':
                     currentDirection = currentDirection == Direction.Right ? Direction.Right : Direction.Left;
                     break;
+            }
+        }
+
+        static void SetDirection()
+        {
+            char key;
+            if (Console.KeyAvailable)
+            {
+                key = Console.ReadKey(true).KeyChar;
+
+                switch (key)
+                {
+                    case 'w':
+                        currentDirection = currentDirection == Direction.Down ? Direction.Down : Direction.Up;
+                        break;
+
+                    case 'd':
+                        currentDirection = currentDirection == Direction.Left ? Direction.Left : Direction.Right;
+                        break;
+
+                    case 's':
+                        currentDirection = currentDirection == Direction.Up ? Direction.Up : Direction.Down;
+                        break;
+
+                    case 'a':
+                        currentDirection = currentDirection == Direction.Right ? Direction.Right : Direction.Left;
+                        break;
+                }
             }
         }
 
@@ -338,7 +355,6 @@ namespace Snake
                 sb.Append("\n");
             }
             Console.Write(sb);
-
         }
 
         static void PlayAgain()
