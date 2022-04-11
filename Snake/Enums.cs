@@ -9,9 +9,9 @@ namespace Snake
     enum Direction
     {
         Up,
-        Right,
         Down,
-        Left
+        Left,
+        Right
     }
 
     enum PointType
