@@ -242,10 +242,7 @@ namespace Snake
         {
             if (Console.KeyAvailable)
             {
-                char c = Console.ReadKey(true).KeyChar;
-                if(keysPressed.Count > 0 && c == keysPressed.Last())
-                    return;
-                switch (c)
+                switch (Console.ReadKey(true).KeyChar)
                 {
                     case 'w':
                         currentDirection = currentDirection == Direction.Down ? Direction.Down : Direction.Up;
