@@ -4,4 +4,4 @@ C:\Users\27797\source\repos\Snake\Snake\bin\Release\Snake.pdb
 C:\Users\27797\source\repos\Snake\Snake\obj\Release\Snake.csproj.CoreCompileInputs.cache
 C:\Users\27797\source\repos\Snake\Snake\obj\Release\Snake.exe
 C:\Users\27797\source\repos\Snake\Snake\obj\Release\Snake.pdb
-C:\Users\27797\source\repos\Snake\Snake\obj\Release\Snake.csprojAssemblyReference.cache
+C:\Users\27797\Source\Repos\Snake\Snake\obj\Release\Snake.csproj.AssemblyReference.cache

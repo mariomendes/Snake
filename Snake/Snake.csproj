@@ -38,7 +38,6 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BodyPoint.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Point.cs" />
     <Compile Include="Program.cs" />
