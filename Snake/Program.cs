@@ -8,23 +8,24 @@ namespace Snake
 {
     class Program
     {
+        #region Variables
         static int updateInterval;
         static int boardHeight;
-        static int boardLength;
+        static int boardWidth;
         static bool play = true;
         static bool playAgain = false;
         static bool wallTravel = true;
         static Point[,] board;
         static Direction currentDirection = Direction.Right;
         static List<Point> snakebodyPoints = new List<Point>();
-        static int width = 40;
-        static int height = 20;
+        static int windowWidth = 40;
+        static int windowHeight = 20;
         static int snakeStartLength = 5;
         static int difficultyMultiplierCount = 0;
         static int difficultyMultiplier = 5;
-        static List<char> keysPressed = new List<char>();
+        #endregion
 
-        static void Main(string[] args)
+        static void Main()
         {
             SetupWindow();
             do
@@ -41,17 +42,18 @@ namespace Snake
 
         static void SetupWindow()
         {
+            Console.Title = "Snake";
             Console.CursorVisible = false;
-            Console.SetWindowSize(width, height);
-            Console.SetBufferSize(width, height);
+            Console.SetWindowSize(windowWidth, windowHeight);
+            Console.SetBufferSize(windowWidth, windowHeight);
         }
 
         static void NewGame()
         {
             boardHeight = Console.WindowHeight - 2;
-            boardLength = Console.WindowWidth - 1;
+            boardWidth = Console.WindowWidth - 1;
 
-            board = new Point[boardHeight, boardLength];
+            board = new Point[boardHeight, boardWidth];
             currentDirection = Direction.Right;
             playAgain = false;
             play = true;
@@ -66,26 +68,26 @@ namespace Snake
 
         static void SetupBoard()
         {
-            //top border
+            //left border
             for (int i = 0; i <= boardHeight - 1; i++)
                 board[i, 0] = new Point { Type = PointType.Border, X = 0, Y = i };
 
-            //left border
-            for (int i = 1; i <= boardLength - 1; i++)
+            //top border
+            for (int i = 1; i <= boardWidth - 1; i++)
                 board[0, i] = new Point { Type = PointType.Border, X = i, Y = 0 };
 
-            //right border
-            for (int i = 1; i <= boardLength - 1; i++)
+            //bottom border
+            for (int i = 1; i <= boardWidth - 1; i++)
                 board[boardHeight - 1, i] = new Point { Type = PointType.Border, X = i, Y = boardHeight - 1 };
 
-            //bottom border
+            //right border
             for (int i = 0; i <= boardHeight - 1; i++)
-                board[i, boardLength - 1] = new Point { Type = PointType.Border, X = boardLength - 1, Y = i };
+                board[i, boardWidth - 1] = new Point { Type = PointType.Border, X = boardWidth - 1, Y = i };
 
             //fill air blocks
             for (int i = 1; i < boardHeight - 1; i++)
-                for (int j = 1; j < boardLength - 1; j++)
-                    board[i, j] = new Point() { Type = PointType.Air, X = j, Y = i };
+                for (int j = 1; j < boardWidth - 1; j++)
+                    board[i, j] = new Point { Type = PointType.Air, X = j, Y = i };
         }
 
         static void CreateSnake()
@@ -93,7 +95,7 @@ namespace Snake
             snakebodyPoints.Clear();
 
             for (int i = 3; i > 3 - snakeStartLength; i--)
-                snakebodyPoints.Add(new Point() { X = boardLength / 2 + i, Y = boardHeight / 2, Type = PointType.Snake });
+                snakebodyPoints.Add(new Point() { X = boardWidth / 2 + i, Y = boardHeight / 2, Type = PointType.Snake });
 
             foreach (var bodyPoint in snakebodyPoints)
                 GetBoardPoint(bodyPoint.X, bodyPoint.Y).Type = PointType.Snake;
@@ -159,14 +161,19 @@ namespace Snake
                 RemoveTail();
             }
 
-            snakebodyPoints.Insert(0, new Point() { X = nextHeadPoint.X, Y = nextHeadPoint.Y });
-            GetBoardPoint(nextHeadPoint.X, nextHeadPoint.Y).Type = PointType.Snake;
+            AddNewHead(nextHeadPoint);
         }
 
         static void RemoveTail()
         {
             GetTailPoint().Type = PointType.Air;
             snakebodyPoints.RemoveAt(snakebodyPoints.Count - 1);
+        }
+
+        static void AddNewHead(Point nextHeadPoint)
+        {
+            snakebodyPoints.Insert(0, new Point() { X = nextHeadPoint.X, Y = nextHeadPoint.Y });
+            GetBoardPoint(nextHeadPoint.X, nextHeadPoint.Y).Type = PointType.Snake;
         }
 
         static Point GetBoardPoint(int x, int y)
@@ -197,7 +204,7 @@ namespace Snake
                 case Direction.Left:
                     x = -1;
                     y = 0;
-                    wallPassX = boardLength - 2;
+                    wallPassX = boardWidth - 2;
                     break;
 
                 case Direction.Up:
@@ -227,9 +234,7 @@ namespace Snake
 
         static bool IsCollision(Point point)
         {
-            var tailPoint = GetTailPoint();
-
-            if (point == tailPoint)
+            if (point == GetTailPoint())
                 return false;
 
             if (point.Type == PointType.Snake || point.Type == PointType.Border)
@@ -242,26 +247,26 @@ namespace Snake
         {
             if (Console.KeyAvailable)
             {
-                switch (Console.ReadKey(true).KeyChar)
+                switch (Console.ReadKey(true).Key)
                 {
-                    case 'w':
+                    case ConsoleKey.UpArrow:
+                    case ConsoleKey.W:
                         currentDirection = currentDirection == Direction.Down ? Direction.Down : Direction.Up;
-                        keysPressed.Add('w');
                         break;
 
-                    case 'd':
+                    case ConsoleKey.RightArrow:
+                    case ConsoleKey.D:
                         currentDirection = currentDirection == Direction.Left ? Direction.Left : Direction.Right;
-                        keysPressed.Add('d');
                         break;
 
-                    case 's':
+                    case ConsoleKey.DownArrow:
+                    case ConsoleKey.S:
                         currentDirection = currentDirection == Direction.Up ? Direction.Up : Direction.Down;
-                        keysPressed.Add('s');
                         break;
 
-                    case 'a':
+                    case ConsoleKey.LeftArrow:
+                    case ConsoleKey.A:
                         currentDirection = currentDirection == Direction.Right ? Direction.Right : Direction.Left;
-                        keysPressed.Add('a');
                         break;
                 }
             }
@@ -276,7 +281,7 @@ namespace Snake
 
             for (int i = 0; i < boardHeight; i++)
             {
-                for (int j = 0; j < boardLength; j++)
+                for (int j = 0; j < boardWidth; j++)
                 {
                     switch (board[i, j]?.Type)
                     {
@@ -307,14 +312,14 @@ namespace Snake
             for (int i = 0; i < Console.WindowWidth / 8 / 2 - 1; i++)
                 Console.Write("\t");
 
-            Console.Write("      Play Again? y/n");
-            char option;
+            Console.Write("      Play Again? Y/N");
+            string option;
             do
             {
-                option = Console.ReadKey(true).KeyChar;
-                playAgain = option == 'y' ? true : false;
+                option = Console.ReadKey(true).KeyChar.ToString().ToLower();
+                playAgain = option == "y" ? true : false;
 
-            } while ((option != 'y') && (option != 'n'));
+            } while ((option != "y") && (option != "n"));
             Console.Clear();
         }
     }
