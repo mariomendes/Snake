@@ -47,7 +47,9 @@ namespace Snake
             GenerateFood();
             Draw();
         }
-
+        /// <summary>
+        /// The game loop
+        /// </summary>
         private void Update()
         {
             SetDirection();
@@ -55,7 +57,9 @@ namespace Snake
             IncreaseDifficulty();
             Draw();
         }
-
+        /// <summary>
+        /// This method deceases the update interval by 1 each time the score is a multiple of 5
+        /// </summary>
         private void IncreaseDifficulty()
         {
             if (Settings.DifficultyMultiplierCount > 0 && Settings.DifficultyMultiplierCount % Settings.DifficultyMultiplier == 0)
@@ -64,11 +68,12 @@ namespace Snake
                 Settings.DifficultyMultiplierCount = 0;
             }
         }
-
+        /// <summary>
+        /// Moves the snake on the board and checks for collisions and food collection
+        /// </summary>
         private void Move()
         {
-            var nextHeadPoint = _snake.NextHeadPoint();
-            var nextBoardPoint = _board[nextHeadPoint.X, nextHeadPoint.Y];
+            var nextBoardPoint = _board[_snake.NextHeadPoint().X, _snake.NextHeadPoint().Y];
 
             if (IsCollision(nextBoardPoint))
             {
@@ -89,10 +94,14 @@ namespace Snake
                 _snake.RemoveTail();
             }
 
-            _board[nextBoardPoint.X, nextBoardPoint.Y].Type = PointType.Snake;
+            nextBoardPoint.Type = PointType.Snake;
             _snake.AddNewHead(nextBoardPoint);
         }
-
+        /// <summary>
+        /// Checks if the next point is a collision
+        /// </summary>
+        /// <param name="nextHeadPoint"></param>
+        /// <returns></returns>
         private bool IsCollision(Point nextHeadPoint)
         {
             if (_board[_snake.TailPoint.X, _snake.TailPoint.Y] == nextHeadPoint)
@@ -101,8 +110,16 @@ namespace Snake
             return nextHeadPoint.Type == PointType.Border || nextHeadPoint.Type == PointType.Snake;
         }
 
+        /// <summary>
+        /// Checks to see if the next point on the board is food.
+        /// </summary>
+        /// <param name="nextHeadPoint"></param>
+        /// <returns></returns>
         private bool IsFoodCollected(Point nextHeadPoint) => nextHeadPoint.Type == PointType.Food;
 
+        /// <summary>
+        /// Sets the current direction of the snake.
+        /// </summary>
         private void SetDirection()
         {
             if (Console.KeyAvailable)
@@ -128,10 +145,19 @@ namespace Snake
                     case ConsoleKey.A:
                         _snake.CurrentDirection = _snake.CurrentDirection == Direction.Right ? Direction.Right : Direction.Left;
                         break;
+
+                    case ConsoleKey.P:
+                    case ConsoleKey.Spacebar:
+                        Console.ReadKey();
+                        SetDirection();
+                        break;
                 }
             }
         }
 
+        /// <summary>
+        /// Generates a new food point on the board.
+        /// </summary>
         private void GenerateFood()
         {
             var airPoints = _board.points.Cast<Point>().Where(x => x.Type == PointType.Air).ToList();
@@ -144,6 +170,9 @@ namespace Snake
             _board[foodPoint.X, foodPoint.Y].Type = PointType.Food;
         }
 
+        /// <summary>
+        /// Draws the current state of the game to the console window.
+        /// </summary>
         private void Draw()
         {
             Console.SetCursorPosition(0, 0);
@@ -178,7 +207,9 @@ namespace Snake
             }
             Console.Write(sb);
         }
-
+        /// <summary>
+        /// This method is called when the game is over and asks the player if they would like to play again.
+        /// </summary>
         private void PlayAgain()
         {
             for (int i = 0; i < Console.WindowWidth / 8 / 2 - 1; i++)

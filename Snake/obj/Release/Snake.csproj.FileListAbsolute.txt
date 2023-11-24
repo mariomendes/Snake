@@ -5,3 +5,10 @@ C:\Users\27797\source\repos\Snake\Snake\obj\Release\Snake.csproj.CoreCompileInpu
 C:\Users\27797\source\repos\Snake\Snake\obj\Release\Snake.exe
 C:\Users\27797\source\repos\Snake\Snake\obj\Release\Snake.pdb
 C:\Users\27797\Source\Repos\Snake\Snake\obj\Release\Snake.csproj.AssemblyReference.cache
+C:\projects\Snake\Snake\bin\Release\Snake.exe.config
+C:\projects\Snake\Snake\bin\Release\Snake.exe
+C:\projects\Snake\Snake\bin\Release\Snake.pdb
+C:\projects\Snake\Snake\obj\Release\Snake.csproj.AssemblyReference.cache
+C:\projects\Snake\Snake\obj\Release\Snake.csproj.CoreCompileInputs.cache
+C:\projects\Snake\Snake\obj\Release\Snake.exe
+C:\projects\Snake\Snake\obj\Release\Snake.pdb
